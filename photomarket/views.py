@@ -1,7 +1,41 @@
 """
-Кастомные обработчики ошибок
+Кастомные обработчики ошибок и главная страница
 """
 from django.shortcuts import render
+from django.db.models import Count
+
+
+def home(request):
+    """Главная страница с контекстом"""
+    from apps.photos.models import Photo, Event
+    from apps.accounts.models import PhotographerProfile
+    
+    # Последние фото (6 штук)
+    latest_photos = Photo.objects.filter(
+        status='active'
+    ).select_related('photographer__user', 'event').order_by('-created_at')[:6]
+    
+    # Featured photos для слайдера (первые 5)
+    featured_photos = Photo.objects.filter(
+        status='active'
+    ).select_related('photographer__user').order_by('-created_at')[:5]
+    
+    # Топ фотографы по количеству фото
+    top_photographers = PhotographerProfile.objects.annotate(
+        photos_count=Count('photos')
+    ).filter(photos_count__gt=0).order_by('-photos_count')[:8]
+    
+    # Последние события
+    latest_events = Event.objects.filter(
+        is_public=True
+    ).select_related('photographer__user').order_by('-date')[:3]
+    
+    return render(request, 'home.html', {
+        'latest_photos': latest_photos,
+        'featured_photos': featured_photos,
+        'top_photographers': top_photographers,
+        'latest_events': latest_events,
+    })
 
 
 def handler400(request, exception=None):

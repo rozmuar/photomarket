@@ -3,38 +3,50 @@
 {% block title %}Мой кабинет - PhotoMarket{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <h1 class="mb-4"><i class="bi bi-person-circle"></i> Мой кабинет</h1>
+<div class="container py-5">
+    <div class="section-header mb-4">
+        <div>
+            <span class="section-label">Личный кабинет</span>
+            <h2 class="section-title">Добро пожаловать, {{ user.first_name|default:user.username }}!</h2>
+        </div>
+    </div>
     
     <div class="row g-4">
         <!-- Селфи для поиска -->
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-camera"></i> Моё селфи</h5>
+        <div class="col-lg-4">
+            <div class="card-dark h-100">
+                <div class="card-header border-bottom border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-camera text-accent"></i> Моё селфи</h5>
                 </div>
-                <div class="card-body text-center">
+                <div class="card-body text-center py-4">
                     {% if profile.selfie %}
-                        <img src="{{ profile.selfie.url }}" 
-                             class="rounded-circle mb-3" 
-                             style="width: 150px; height: 150px; object-fit: cover;">
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="{{ profile.selfie.url }}" 
+                                 class="rounded-circle" 
+                                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid var(--accent-primary);">
+                            {% if profile.face_processed %}
+                            <span class="position-absolute bottom-0 end-0 bg-success rounded-circle p-2">
+                                <i class="bi bi-check-lg text-white"></i>
+                            </span>
+                            {% endif %}
+                        </div>
                         
                         {% if profile.face_processed %}
-                        <p class="text-success">
+                        <p class="text-success mb-2">
                             <i class="bi bi-check-circle"></i> Лицо распознано
                         </p>
                         {% elif profile.face_processing_error %}
-                        <p class="text-danger">
+                        <p class="text-danger mb-2">
                             <i class="bi bi-exclamation-circle"></i> {{ profile.face_processing_error }}
                         </p>
                         {% else %}
-                        <p class="text-warning">
+                        <p class="text-warning mb-2">
                             <i class="bi bi-hourglass-split"></i> Обрабатывается...
                         </p>
                         {% endif %}
                     {% else %}
-                        <div class="bg-light rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                             style="width: 150px; height: 150px;">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                             style="width: 150px; height: 150px; background: var(--bg-card); border: 2px dashed var(--border-color);">
                             <i class="bi bi-person-bounding-box display-4 text-muted"></i>
                         </div>
                         <p class="text-muted">Загрузите селфи для поиска фотографий</p>
@@ -44,11 +56,11 @@
                           enctype="multipart/form-data" class="mt-3">
                         {% csrf_token %}
                         <div class="mb-2">
-                            {{ selfie_form.selfie }}
+                            <input type="file" name="selfie" class="form-control form-control-dark form-control-sm" accept="image/*">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm">
+                        <button type="submit" class="btn btn-accent btn-sm w-100">
                             <i class="bi bi-upload"></i> 
-                            {% if profile.selfie %}Обновить{% else %}Загрузить{% endif %}
+                            {% if profile.selfie %}Обновить селфи{% else %}Загрузить селфи{% endif %}
                         </button>
                     </form>
                 </div>
@@ -56,54 +68,55 @@
         </div>
         
         <!-- Найденные фото -->
-        <div class="col-md-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="col-lg-8">
+            <div class="card-dark h-100">
+                <div class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="bi bi-images"></i> 
+                        <i class="bi bi-images text-accent"></i> 
                         Найденные фотографии 
                         {% if matched_photos_count %}
-                        <span class="badge bg-success">{{ matched_photos_count }}</span>
+                        <span class="badge bg-success ms-2">{{ matched_photos_count }}</span>
                         {% endif %}
                     </h5>
-                    {% if profile.face_processed %}
-                    <a href="{% url 'clients:my_photos' %}" class="btn btn-sm btn-outline-primary">
-                        Все фото <i class="bi bi-arrow-right"></i>
-                    </a>
-                    {% endif %}
+                    <div>
+                        {% if profile.face_processed %}
+                        <a href="{% url 'clients:search_photos' %}" class="btn btn-outline-accent btn-sm me-2">
+                            <i class="bi bi-arrow-repeat"></i> Обновить
+                        </a>
+                        <a href="{% url 'clients:my_photos' %}" class="btn btn-accent btn-sm">
+                            Все фото <i class="bi bi-arrow-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if profile.face_processed %}
                         {% if recent_matches %}
-                        <div class="row g-2">
+                        <div class="row g-3">
                             {% for photo in recent_matches %}
                             <div class="col-4">
-                                <a href="{% url 'clients:photo_detail' photo.id %}">
-                                    <img src="{% if photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}" 
-                                         class="img-fluid rounded" style="height: 100px; width: 100%; object-fit: cover;">
+                                <a href="{% url 'clients:photo_detail' photo.id %}" class="d-block">
+                                    <div class="photo-card" style="border-radius: var(--radius-md);">
+                                        <img src="{% if photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}" 
+                                             class="w-100" style="height: 120px; object-fit: cover; border-radius: var(--radius-md);">
+                                    </div>
                                 </a>
                             </div>
                             {% endfor %}
                         </div>
-                        <div class="mt-3 text-center">
-                            <a href="{% url 'clients:search_photos' %}" class="btn btn-outline-success">
-                                <i class="bi bi-arrow-repeat"></i> Искать новые фото
-                            </a>
-                        </div>
                         {% else %}
-                        <div class="text-center py-4 text-muted">
-                            <i class="bi bi-search display-4"></i>
-                            <p class="mt-2">Пока не найдено фотографий с вашим лицом</p>
-                            <p class="small">Фотографии появятся, когда фотографы загрузят снимки с мероприятий</p>
-                            <a href="{% url 'clients:search_photos' %}" class="btn btn-success mt-2">
+                        <div class="text-center py-5">
+                            <i class="bi bi-search display-3 text-muted"></i>
+                            <p class="text-muted mt-3 mb-3">Пока не найдено фотографий с вашим лицом</p>
+                            <a href="{% url 'clients:search_photos' %}" class="btn btn-accent">
                                 <i class="bi bi-search"></i> Искать фото
                             </a>
                         </div>
                         {% endif %}
                     {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-person-bounding-box display-4 text-muted"></i>
-                            <p class="mt-2">Загрузите селфи, чтобы начать поиск фотографий</p>
+                        <div class="text-center py-5">
+                            <i class="bi bi-person-bounding-box display-3 text-muted"></i>
+                            <p class="text-muted mt-3">Загрузите селфи, чтобы начать поиск фотографий</p>
                         </div>
                     {% endif %}
                 </div>
@@ -111,68 +124,77 @@
         </div>
     </div>
     
+    <!-- Статистика и действия -->
     <div class="row g-4 mt-2">
         <!-- Мои покупки -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-bag-check"></i> Мои покупки</h5>
-                    <a href="{% url 'clients:purchases' %}" class="btn btn-sm btn-outline-secondary">
-                        Все
+        <div class="col-lg-6">
+            <div class="card-dark">
+                <div class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-bag-check text-accent"></i> Мои покупки</h5>
+                    <a href="{% url 'clients:purchases' %}" class="btn btn-outline-accent btn-sm">
+                        Все покупки
                     </a>
                 </div>
                 <div class="card-body">
                     {% if purchases %}
-                    <ul class="list-group list-group-flush">
+                    <div class="list-group list-group-flush bg-transparent">
                         {% for purchase in purchases %}
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="{% if purchase.photo.thumbnail %}{{ purchase.photo.thumbnail.url }}{% endif %}" 
-                                 style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-3">
+                        <div class="list-group-item bg-transparent border-secondary d-flex align-items-center gap-3 px-0">
+                            <img src="{% if purchase.photo.thumbnail %}{{ purchase.photo.thumbnail.url }}{% else %}{{ purchase.photo.original.url }}{% endif %}" 
+                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);">
                             <div class="flex-grow-1">
-                                <small class="text-muted">{{ purchase.paid_at|date:"d.m.Y" }}</small>
+                                <div class="text-light">{{ purchase.photo.title|default:"Фото" }}</div>
+                                <small class="text-muted">{{ purchase.created_at|date:"d.m.Y" }}</small>
                             </div>
-                            <span class="badge bg-success">{{ purchase.amount }} ₽</span>
-                        </li>
+                            <span class="text-accent fw-bold">{{ purchase.amount }} ₽</span>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center py-3 mb-0">Покупок пока нет</p>
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-bag display-4"></i>
+                        <p class="mt-2 mb-0">Покупок пока нет</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
         
         <!-- Запросы на удаление -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-trash"></i> Запросы на удаление</h5>
-                    <a href="{% url 'clients:deletion_requests' %}" class="btn btn-sm btn-outline-secondary">
-                        Все
+        <div class="col-lg-6">
+            <div class="card-dark">
+                <div class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-shield-exclamation text-accent"></i> Мои запросы</h5>
+                    <a href="{% url 'clients:deletion_requests' %}" class="btn btn-outline-accent btn-sm">
+                        Все запросы
                     </a>
                 </div>
                 <div class="card-body">
                     {% if deletion_requests %}
-                    <ul class="list-group list-group-flush">
+                    <div class="list-group list-group-flush bg-transparent">
                         {% for req in deletion_requests %}
-                        <li class="list-group-item d-flex align-items-center">
-                            <img src="{% if req.photo.thumbnail %}{{ req.photo.thumbnail.url }}{% endif %}" 
-                                 style="width: 50px; height: 50px; object-fit: cover;" class="rounded me-3">
+                        <div class="list-group-item bg-transparent border-secondary d-flex align-items-center gap-3 px-0">
+                            <img src="{% if req.photo.thumbnail %}{{ req.photo.thumbnail.url }}{% else %}{{ req.photo.original.url }}{% endif %}" 
+                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);">
                             <div class="flex-grow-1">
+                                <div class="text-light">Запрос на удаление</div>
                                 <small class="text-muted">{{ req.created_at|date:"d.m.Y" }}</small>
                             </div>
                             {% if req.status == 'pending' %}
-                            <span class="badge bg-warning">На рассмотрении</span>
+                            <span class="badge bg-warning">Ожидает</span>
                             {% elif req.status == 'approved' %}
-                            <span class="badge bg-success">Одобрено</span>
+                            <span class="badge bg-success">Одобрен</span>
                             {% else %}
-                            <span class="badge bg-danger">Отклонено</span>
+                            <span class="badge bg-danger">Отклонён</span>
                             {% endif %}
-                        </li>
+                        </div>
                         {% endfor %}
-                    </ul>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center py-3 mb-0">Запросов нет</p>
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-shield-check display-4"></i>
+                        <p class="mt-2 mb-0">Запросов нет</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>

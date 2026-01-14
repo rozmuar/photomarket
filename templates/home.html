@@ -1,207 +1,325 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}PhotoMarket - Найди себя на фото{% endblock %}
 
 {% block content %}
-<!-- Hero секция -->
-<section class="hero-section bg-primary text-white py-5">
+<!-- Hero Section -->
+<section class="hero-section">
     <div class="container">
-        <div class="row align-items-center">
+        <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">
-                    Найди себя на профессиональных фотографиях
-                </h1>
-                <p class="lead mb-4">
-                    Загрузи селфи — и наш ИИ найдёт все фотографии с твоим лицом 
-                    на мероприятиях, концертах, свадьбах и спортивных событиях.
-                </p>
-                <div class="d-flex gap-3">
-                    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
-                        <i class="bi bi-search"></i> Найти свои фото
-                    </a>
-                    <a href="{% url 'photos:events' %}" class="btn btn-outline-light btn-lg">
-                        Смотреть события
-                    </a>
+                <div class="hero-content">
+                    <h1>
+                        Найди, <span class="text-accent">Купи</span> &<br>
+                        Продай Фотографии<br>
+                        с Мероприятий
+                    </h1>
+                    <p>
+                        Загрузи своё селфи и система автоматически найдёт 
+                        все профессиональные фотографии с твоим лицом 
+                        на мероприятиях и событиях.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{% url 'accounts:register' %}" class="btn btn-accent">
+                            <i class="bi bi-person-plus"></i> Найти фото
+                        </a>
+                        <a href="{% url 'photos:gallery' %}" class="btn btn-outline-accent">
+                            <i class="bi bi-images"></i> Смотреть галерею
+                        </a>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="hero-image">
-                    <i class="bi bi-camera display-1"></i>
-                    <i class="bi bi-person-bounding-box display-1 ms-3"></i>
-                    <i class="bi bi-arrow-right display-1 mx-3"></i>
-                    <i class="bi bi-images display-1"></i>
+            <div class="col-lg-6">
+                <div class="hero-image-card" id="heroSlider">
+                    <div class="hero-nav-arrows">
+                        <button onclick="prevSlide()"><i class="bi bi-chevron-left"></i></button>
+                        <button onclick="nextSlide()"><i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    {% if featured_photos %}
+                        <img src="{{ featured_photos.0.watermarked.url }}" alt="Featured photo" id="heroImage">
+                        <div class="hero-image-info">
+                            <img src="{% if featured_photos.0.photographer.avatar %}{{ featured_photos.0.photographer.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ featured_photos.0.photographer.user.username }}&background=0099cc&color=fff{% endif %}" 
+                                 alt="Avatar" class="avatar">
+                            <div class="info">
+                                <h6 id="heroTitle">{{ featured_photos.0.title|default:"Фото с мероприятия" }}</h6>
+                                <span>Автор: <a href="#">{{ featured_photos.0.photographer.user.get_full_name|default:featured_photos.0.photographer.user.username }}</a></span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600" alt="Event photo">
+                        <div class="hero-image-info">
+                            <img src="https://ui-avatars.com/api/?name=PM&background=0099cc&color=fff" alt="Avatar" class="avatar">
+                            <div class="info">
+                                <h6>Фотографии с мероприятий</h6>
+                                <span>Найди себя на фото!</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Как это работает -->
+<!-- Live Photos Section -->
 <section class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Как это работает</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="feature-icon bg-primary text-white rounded-circle mb-3 mx-auto" 
-                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
-                            <i class="bi bi-camera-fill"></i>
-                        </div>
-                        <h4>1. Сделай селфи</h4>
-                        <p class="text-muted">
-                            Загрузи своё фото или сделай селфи прямо на сайте. 
-                            Наш ИИ запомнит твоё лицо.
-                        </p>
-                    </div>
-                </div>
+        <div class="section-header">
+            <div>
+                <span class="section-label">Свежие</span>
+                <h2 class="section-title">Последние фотографии</h2>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="feature-icon bg-success text-white rounded-circle mb-3 mx-auto" 
-                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
-                            <i class="bi bi-search"></i>
-                        </div>
-                        <h4>2. Найди фото</h4>
-                        <p class="text-muted">
-                            Система автоматически найдёт все фотографии с твоим лицом 
-                            среди тысяч снимков.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 text-center border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="feature-icon bg-warning text-white rounded-circle mb-3 mx-auto" 
-                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
-                            <i class="bi bi-download"></i>
-                        </div>
-                        <h4>3. Купи и скачай</h4>
-                        <p class="text-muted">
-                            Понравилось фото? Купи его в хорошем качестве. 
-                            Не понравилось — запроси удаление.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <a href="{% url 'photos:gallery' %}" class="section-link">
+                Смотреть все <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
-    </div>
-</section>
-
-<!-- Для фотографов -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="mb-4">Вы фотограф?</h2>
-                <p class="lead">
-                    Зарабатывайте на своих фотографиях! Загружайте снимки с мероприятий, 
-                    и клиенты сами найдут себя и купят фото.
-                </p>
-                <ul class="list-unstyled">
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Автоматическое распознавание лиц
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Водяные знаки для защиты фото
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Удобный вывод средств на карту
-                    </li>
-                    <li class="mb-2">
-                        <i class="bi bi-check-circle-fill text-success me-2"></i>
-                        Комиссия всего 15%
-                    </li>
-                </ul>
-                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
-                    <i class="bi bi-camera-reels"></i> Стать фотографом
+        
+        <div class="row g-4">
+            {% for photo in latest_photos %}
+            <div class="col-lg-4 col-md-6">
+                <a href="{% url 'clients:photo_detail' photo.id %}" class="text-decoration-none">
+                    <div class="photo-card">
+                        <div class="photo-card-image">
+                            <img src="{% if photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}" 
+                                 alt="{{ photo.title }}">
+                            {% if photo.event %}
+                            <span class="photo-card-badge">
+                                <i class="bi bi-calendar-event"></i> {{ photo.event.title|truncatechars:20 }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="photo-card-meta">
+                            <div class="photo-card-author">
+                                <img src="{% if photo.photographer.avatar %}{{ photo.photographer.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ photo.photographer.user.username }}&background=0099cc&color=fff&size=35{% endif %}" 
+                                     alt="Avatar">
+                                <span>{{ photo.photographer.user.get_full_name|default:photo.photographer.user.username }}</span>
+                            </div>
+                            <div class="photo-card-likes">
+                                <i class="bi bi-heart"></i>
+                                <span>{{ photo.views_count|default:0 }}</span>
+                            </div>
+                        </div>
+                        <div class="photo-card-body">
+                            <h5 class="photo-card-title">{{ photo.title|default:"Фото с мероприятия" }}</h5>
+                            <div class="photo-card-price">
+                                <span class="label">Цена</span>
+                                <span class="value">{{ photo.price }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
                 </a>
             </div>
-            <div class="col-lg-6">
-                <div class="card border-0 shadow">
-                    <div class="card-body p-4">
-                        <h5 class="card-title">Статистика платформы</h5>
-                        <div class="row text-center mt-4">
-                            <div class="col-4">
-                                <div class="display-6 text-primary">1000+</div>
-                                <small class="text-muted">Фотографов</small>
-                            </div>
-                            <div class="col-4">
-                                <div class="display-6 text-success">50K+</div>
-                                <small class="text-muted">Фотографий</small>
-                            </div>
-                            <div class="col-4">
-                                <div class="display-6 text-warning">10K+</div>
-                                <small class="text-muted">Клиентов</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-images display-1 text-muted"></i>
+                <p class="text-muted mt-3">Фотографии скоро появятся</p>
             </div>
+            {% endfor %}
         </div>
     </div>
 </section>
 
-<!-- Типы событий -->
+<!-- Top Photographers Section -->
 <section class="py-5">
     <div class="container">
-        <h2 class="text-center mb-5">Популярные события</h2>
+        <div class="section-header">
+            <div>
+                <span class="section-label">Топ авторы</span>
+                <h2 class="section-title">Лучшие фотографы</h2>
+            </div>
+            <a href="#" class="section-link">
+                Все фотографы <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
         <div class="row g-4">
-            <div class="col-6 col-md-3">
-                <a href="{% url 'photos:events' %}?type=sport" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-trophy display-4 text-primary mb-3"></i>
-                        <h5 class="card-title">Спорт</h5>
-                        <p class="text-muted small">Марафоны, соревнования</p>
+            {% for photographer in top_photographers %}
+            <div class="col-lg-3 col-md-6">
+                <div class="photographer-card">
+                    <img src="{% if photographer.avatar %}{{ photographer.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ photographer.user.username }}&background=0099cc&color=fff&size=60{% endif %}" 
+                         alt="Avatar" class="avatar">
+                    <div class="info">
+                        <h5>{{ photographer.user.get_full_name|default:photographer.user.username }}</h5>
+                        <span>{{ photographer.photos_count|default:0 }} фото</span>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'photos:events' %}?type=wedding" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-heart display-4 text-danger mb-3"></i>
-                        <h5 class="card-title">Свадьбы</h5>
-                        <p class="text-muted small">Торжества и банкеты</p>
+            {% empty %}
+            <!-- Placeholder cards -->
+            <div class="col-lg-3 col-md-6">
+                <div class="photographer-card">
+                    <img src="https://ui-avatars.com/api/?name=PM&background=0099cc&color=fff&size=60" alt="Avatar" class="avatar">
+                    <div class="info">
+                        <h5>Станьте первым</h5>
+                        <span>Начните публиковать</span>
                     </div>
-                </a>
+                </div>
             </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'photos:events' %}?type=concert" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-music-note-beamed display-4 text-success mb-3"></i>
-                        <h5 class="card-title">Концерты</h5>
-                        <p class="text-muted small">Фестивали и выступления</p>
-                    </div>
-                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Как это работает</span>
+                <h2 class="section-title">Найди себя на фото за 4 шага</h2>
             </div>
-            <div class="col-6 col-md-3">
-                <a href="{% url 'photos:events' %}?type=corporate" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
-                    <div class="card-body text-center p-4">
-                        <i class="bi bi-building display-4 text-info mb-3"></i>
-                        <h5 class="card-title">Корпоративы</h5>
-                        <p class="text-muted small">Бизнес-мероприятия</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-person-plus"></i>
                     </div>
-                </a>
+                    <h4>Регистрация</h4>
+                    <p>Создайте аккаунт клиента за пару минут. Это бесплатно и быстро.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <h4>Загрузите селфи</h4>
+                    <p>Сделайте чёткое фото своего лица. Система использует его для поиска.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h4>Автопоиск</h4>
+                    <p>AI автоматически найдёт все фотографии с вашим лицом среди тысяч снимков.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-download"></i>
+                    </div>
+                    <h4>Скачайте оригинал</h4>
+                    <p>Купите понравившиеся фото и получите их в полном разрешении без водяных знаков.</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
-        <h2 class="mb-4">Готовы найти свои фотографии?</h2>
-        <p class="lead mb-4">
-            Регистрация бесплатна. Начните поиск прямо сейчас!
-        </p>
-        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
-            <i class="bi bi-person-plus"></i> Создать аккаунт
-        </a>
+<!-- Latest Events Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <span class="section-label">Мероприятия</span>
+                <h2 class="section-title">Последние события</h2>
+            </div>
+            <a href="{% url 'photos:events' %}" class="section-link">
+                Все события <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            {% for event in latest_events %}
+            <div class="col-lg-4 col-md-6">
+                <a href="{% url 'photos:event_detail' event.id %}" class="text-decoration-none">
+                    <div class="event-card">
+                        <div class="event-card-image">
+                            {% if event.cover_image %}
+                            <img src="{{ event.cover_image.url }}" alt="{{ event.title }}">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400" alt="Event">
+                            {% endif %}
+                        </div>
+                        <div class="event-card-body">
+                            <div class="event-card-date">
+                                <i class="bi bi-calendar"></i> {{ event.date|date:"d.m.Y" }} | 
+                                <i class="bi bi-person"></i> {{ event.photographer.user.username }}
+                            </div>
+                            <h5 class="event-card-title">{{ event.title }}</h5>
+                            <p class="event-card-desc">{{ event.description|truncatechars:80 }}</p>
+                            <span class="event-card-link">
+                                Смотреть фото <i class="bi bi-chevron-right"></i>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-calendar-x display-1 text-muted"></i>
+                <p class="text-muted mt-3">События скоро появятся</p>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
+
+<!-- CTA Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="card-dark text-center py-5">
+            <div class="card-body">
+                <h2 class="mb-3">Готовы найти себя на фото?</h2>
+                <p class="text-muted mb-4">Присоединяйтесь к тысячам пользователей, которые уже нашли свои лучшие моменты</p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'accounts:register' %}?type=client" class="btn btn-accent btn-lg">
+                        <i class="bi bi-person-plus"></i> Я ищу фото
+                    </a>
+                    <a href="{% url 'accounts:register' %}?type=photographer" class="btn btn-outline-accent btn-lg">
+                        <i class="bi bi-camera"></i> Я фотограф
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Simple hero slider (if photos exist)
+const heroPhotos = [
+    {% for photo in featured_photos %}
+    {
+        image: "{% if photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}",
+        title: "{{ photo.title|default:'Фото с мероприятия' }}",
+        author: "{{ photo.photographer.user.get_full_name|default:photo.photographer.user.username }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+let currentSlide = 0;
+
+function updateSlide() {
+    if (heroPhotos.length === 0) return;
+    const img = document.getElementById('heroImage');
+    const title = document.getElementById('heroTitle');
+    if (img && title) {
+        img.src = heroPhotos[currentSlide].image;
+        title.textContent = heroPhotos[currentSlide].title;
+    }
+}
+
+function nextSlide() {
+    if (heroPhotos.length === 0) return;
+    currentSlide = (currentSlide + 1) % heroPhotos.length;
+    updateSlide();
+}
+
+function prevSlide() {
+    if (heroPhotos.length === 0) return;
+    currentSlide = (currentSlide - 1 + heroPhotos.length) % heroPhotos.length;
+    updateSlide();
+}
+
+// Auto-slide every 5 seconds
+setInterval(nextSlide, 5000);
+</script>
 {% endblock %}

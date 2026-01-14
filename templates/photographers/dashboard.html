@@ -3,88 +3,90 @@
 {% block title %}Кабинет фотографа - PhotoMarket{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
     <!-- Заголовок -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="bi bi-camera-reels"></i> Кабинет фотографа</h1>
-        <a href="{% url 'photographers:photo_upload' %}" class="btn btn-primary">
+    <div class="section-header mb-4">
+        <div>
+            <span class="section-label">Личный кабинет</span>
+            <h2 class="section-title">Добро пожаловать, {{ user.first_name|default:user.username }}!</h2>
+        </div>
+        <a href="{% url 'photographers:photo_upload' %}" class="btn btn-accent">
             <i class="bi bi-cloud-upload"></i> Загрузить фото
         </a>
     </div>
     
     <!-- Статистика -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 opacity-75">Баланс</h6>
-                    <h2 class="card-title mb-0">{{ profile.balance }} ₽</h2>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="bi bi-wallet2"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'photographers:withdrawal' %}" class="text-white text-decoration-none">
-                        Вывести <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+                <div class="stat-value">{{ profile.balance }} ₽</div>
+                <div class="stat-label">Баланс</div>
+                <a href="{% url 'photographers:withdrawal' %}" class="btn btn-outline-accent btn-sm mt-3">
+                    Вывести <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 opacity-75">Заработано за месяц</h6>
-                    <h2 class="card-title mb-0">{{ month_earnings }} ₽</h2>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #00c864 0%, #00a050 100%);">
+                    <i class="bi bi-graph-up-arrow"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'photographers:sales' %}" class="text-white text-decoration-none">
-                        История продаж <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+                <div class="stat-value">{{ month_earnings }} ₽</div>
+                <div class="stat-label">За месяц</div>
+                <a href="{% url 'photographers:sales' %}" class="btn btn-outline-accent btn-sm mt-3">
+                    Продажи <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 opacity-75">Фотографий</h6>
-                    <h2 class="card-title mb-0">{{ photos_count }}</h2>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    <i class="bi bi-images"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'photographers:photos' %}" class="text-white text-decoration-none">
-                        Все фото <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+                <div class="stat-value">{{ photos_count }}</div>
+                <div class="stat-label">Фотографий</div>
+                <a href="{% url 'photographers:photos' %}" class="btn btn-outline-accent btn-sm mt-3">
+                    Все фото <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark h-100">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-2 opacity-75">Запросов на удаление</h6>
-                    <h2 class="card-title mb-0">{{ pending_requests }}</h2>
+        <div class="col-md-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="bi bi-shield-exclamation"></i>
                 </div>
-                <div class="card-footer bg-transparent border-0">
-                    <a href="{% url 'photographers:deletion_requests' %}" class="text-dark text-decoration-none">
-                        Рассмотреть <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
+                <div class="stat-value">{{ pending_requests }}</div>
+                <div class="stat-label">Запросов</div>
+                <a href="{% url 'photographers:deletion_requests' %}" class="btn btn-outline-accent btn-sm mt-3">
+                    Рассмотреть <i class="bi bi-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>
     
-    <div class="row">
+    <div class="row g-4">
         <!-- Быстрые действия -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header">
-                    <h5 class="mb-0">Быстрые действия</h5>
+        <div class="col-lg-4">
+            <div class="card-dark h-100">
+                <div class="card-header border-bottom border-secondary">
+                    <h5 class="mb-0"><i class="bi bi-lightning-charge text-accent"></i> Быстрые действия</h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'photographers:photo_upload' %}" class="btn btn-outline-primary">
-                            <i class="bi bi-cloud-upload"></i> Загрузить фотографии
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'photographers:photo_upload' %}" class="btn btn-accent">
+                            <i class="bi bi-cloud-upload"></i> Загрузить фото
                         </a>
-                        <a href="{% url 'photographers:event_create' %}" class="btn btn-outline-success">
+                        <a href="{% url 'photographers:event_create' %}" class="btn btn-outline-accent">
                             <i class="bi bi-calendar-plus"></i> Создать событие
                         </a>
-                        <a href="{% url 'photographers:events' %}" class="btn btn-outline-info">
-                            <i class="bi bi-calendar-event"></i> Мои события ({{ events_count }})
+                        <a href="{% url 'photographers:events' %}" class="btn btn-outline-accent">
+                            <i class="bi bi-calendar-event"></i> Мои события
+                        </a>
+                        <a href="{% url 'photographers:photos' %}" class="btn btn-outline-accent">
+                            <i class="bi bi-images"></i> Управление фото
                         </a>
                     </div>
                 </div>
@@ -92,36 +94,82 @@
         </div>
         
         <!-- Последние продажи -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Последние продажи</h5>
-                    <a href="{% url 'photographers:sales' %}" class="btn btn-sm btn-outline-primary">
-                        Все
+        <div class="col-lg-8">
+            <div class="card-dark h-100">
+                <div class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-bag-check text-accent"></i> Последние продажи</h5>
+                    <a href="{% url 'photographers:sales' %}" class="btn btn-outline-accent btn-sm">
+                        Все продажи
                     </a>
                 </div>
                 <div class="card-body">
                     {% if recent_sales %}
-                    <ul class="list-group list-group-flush">
-                        {% for sale in recent_sales %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="text-muted">{{ sale.paid_at|date:"d.m.Y H:i" }}</span>
-                                <br>
-                                <small>{{ sale.buyer.user.username }}</small>
-                            </div>
-                            <span class="badge bg-success">+{{ sale.photographer_amount }} ₽</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-borderless">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>Фото</th>
+                                    <th>Покупатель</th>
+                                    <th>Дата</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_sales %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="{% if sale.photo.thumbnail %}{{ sale.photo.thumbnail.url }}{% else %}{{ sale.photo.original.url }}{% endif %}" 
+                                                 style="width: 40px; height: 40px; object-fit: cover; border-radius: var(--radius-sm);">
+                                            <span class="small">{{ sale.photo.title|default:"Фото"|truncatechars:20 }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">{{ sale.buyer.user.username }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted small">{{ sale.created_at|date:"d.m.Y" }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-accent fw-bold">{{ sale.amount }} ₽</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                     {% else %}
-                    <p class="text-muted text-center py-3">
-                        Продаж пока нет. Загрузите фотографии!
-                    </p>
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-cart display-3"></i>
+                        <p class="mt-3 mb-0">Продаж пока нет</p>
+                        <p class="small">Загрузите фото и они начнут продаваться!</p>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Подсказки для новичков -->
+    {% if photos_count == 0 %}
+    <div class="mt-4">
+        <div class="card-dark p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="text-accent mb-2"><i class="bi bi-lightbulb"></i> Начните зарабатывать!</h4>
+                    <p class="text-muted mb-0">
+                        Загрузите свои первые фотографии с мероприятий. Система автоматически распознает лица 
+                        и поможет клиентам найти себя на ваших снимках.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'photographers:photo_upload' %}" class="btn btn-accent btn-lg">
+                        <i class="bi bi-cloud-upload"></i> Загрузить первое фото
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
