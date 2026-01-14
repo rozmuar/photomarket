@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Ошибка 500 - Внутренняя ошибка сервера{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <i class="bi bi-gear-wide-connected text-secondary" style="font-size: 6rem;"></i>
+            </div>
+            <h1 class="display-1 fw-bold text-secondary">500</h1>
+            <h2 class="mb-4">Внутренняя ошибка сервера</h2>
+            <p class="lead text-muted mb-4">
+                Произошла непредвиденная ошибка на сервере. 
+                Мы уже работаем над её устранением. Пожалуйста, попробуйте позже.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house"></i> На главную
+                </a>
+                <button onclick="location.reload()" class="btn btn-outline-secondary btn-lg">
+                    <i class="bi bi-arrow-clockwise"></i> Обновить страницу
+                </button>
+            </div>
+            <div class="mt-5">
+                <p class="text-muted small">
+                    Если ошибка повторяется, пожалуйста, сообщите нам об этом
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

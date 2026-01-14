@@ -66,12 +66,51 @@ def upload_selfie(request):
         form = SelfieUploadForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             profile = form.save(commit=False)
-            # В режиме разработки без face_recognition сразу помечаем как обработанное
-            profile.face_processed = True
+            profile.face_processed = False
             profile.face_encoding = None
             profile.save()
             
-            messages.success(request, 'Селфи загружено!')
+            # Обрабатываем селфи и ищем совпадения
+            from apps.recognition.services import face_service
+            
+            if face_service.available:
+                try:
+                    # Получаем кодировку лица с селфи
+                    faces = face_service.get_face_data(profile.selfie.path)
+                    
+                    if faces:
+                        # Сохраняем кодировку первого (основного) лица
+                        profile.face_encoding = faces[0]['encoding']
+                        profile.face_processed = True
+                        profile.save()
+                        
+                        # Ищем совпадения на всех фото
+                        from apps.photos.models import PhotoFace
+                        
+                        matched_count = 0
+                        for photo_face in PhotoFace.objects.filter(matched_user__isnull=True):
+                            if photo_face.face_encoding:
+                                is_match, confidence = face_service.compare_faces(
+                                    profile.face_encoding,
+                                    photo_face.face_encoding
+                                )
+                                if is_match:
+                                    photo_face.matched_user = request.user
+                                    photo_face.save()
+                                    matched_count += 1
+                        
+                        messages.success(request, f'Селфи обработано! Найдено {matched_count} фото с вами.')
+                    else:
+                        messages.warning(request, 'Лицо не найдено на селфи. Попробуйте другое фото.')
+                except Exception as e:
+                    messages.error(request, f'Ошибка обработки: {e}')
+                    profile.face_processed = True  # Помечаем как обработанное, чтобы не зависло
+                    profile.save()
+            else:
+                profile.face_processed = True
+                profile.save()
+                messages.info(request, 'Селфи загружено. Распознавание лиц временно недоступно.')
+            
             return redirect('clients:dashboard')
     else:
         form = SelfieUploadForm(instance=profile)
@@ -126,8 +165,8 @@ class MyPhotosView(LoginRequiredMixin, ClientRequiredMixin, ListView):
         return context
 
 
-class PhotoDetailView(LoginRequiredMixin, ClientRequiredMixin, DetailView):
-    """Детальный просмотр фотографии"""
+class PhotoDetailView(LoginRequiredMixin, DetailView):
+    """Детальный просмотр фотографии - доступно всем авторизованным"""
     template_name = 'clients/photo_detail.html'
     context_object_name = 'photo'
     
@@ -137,21 +176,26 @@ class PhotoDetailView(LoginRequiredMixin, ClientRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Проверяем, куплено ли уже это фото
-        context['is_purchased'] = Purchase.objects.filter(
-            buyer=self.request.user.client_profile,
-            photo=self.object,
-            status='paid'
-        ).exists()
+        # Проверяем, куплено ли уже это фото (только для клиентов)
+        context['is_purchased'] = False
+        context['is_client'] = self.request.user.is_client
         
-        # Форма запроса на удаление
-        context['deletion_form'] = DeletionRequestForm()
-        
-        # Есть ли уже запрос на удаление
-        context['deletion_request'] = DeletionRequest.objects.filter(
-            photo=self.object,
-            requester=self.request.user
-        ).first()
+        if self.request.user.is_client:
+            profile, _ = ClientProfile.objects.get_or_create(user=self.request.user)
+            context['is_purchased'] = Purchase.objects.filter(
+                buyer=profile,
+                photo=self.object,
+                status='paid'
+            ).exists()
+            
+            # Форма запроса на удаление
+            context['deletion_form'] = DeletionRequestForm()
+            
+            # Есть ли уже запрос на удаление
+            context['deletion_request'] = DeletionRequest.objects.filter(
+                photo=self.object,
+                requester=self.request.user
+            ).first()
         
         return context
 
@@ -206,3 +250,76 @@ class DeletionRequestsView(LoginRequiredMixin, ClientRequiredMixin, ListView):
         return DeletionRequest.objects.filter(
             requester=self.request.user
         ).select_related('photo', 'photo__photographer__user').order_by('-created_at')
+
+
+@login_required
+def search_photos(request):
+    """Повторный поиск фото по базе (для клиентов с загруженным селфи)"""
+    if not request.user.is_client:
+        messages.error(request, 'Только для клиентов.')
+        return redirect('accounts:dashboard')
+    
+    try:
+        profile = request.user.client_profile
+    except ClientProfile.DoesNotExist:
+        messages.error(request, 'Профиль не найден.')
+        return redirect('clients:dashboard')
+    
+    if not profile.selfie:
+        messages.warning(request, 'Сначала загрузите своё селфи.')
+        return redirect('clients:dashboard')
+    
+    from apps.recognition.services import face_service
+    
+    if not face_service.available:
+        messages.error(request, 'Сервис распознавания лиц временно недоступен.')
+        return redirect('clients:dashboard')
+    
+    # Если нет кодировки лица - пробуем получить
+    if not profile.face_encoding:
+        try:
+            faces = face_service.get_face_data(profile.selfie.path)
+            if faces:
+                profile.face_encoding = faces[0]['encoding']
+                profile.face_processed = True
+                profile.save()
+            else:
+                messages.warning(request, 'Лицо не найдено на селфи. Попробуйте другое фото.')
+                return redirect('clients:dashboard')
+        except Exception as e:
+            messages.error(request, f'Ошибка обработки селфи: {e}')
+            return redirect('clients:dashboard')
+    
+    # Ищем совпадения во всех фото, где ещё нет совпадений с этим пользователем
+    from apps.photos.models import PhotoFace
+    
+    matched_count = 0
+    new_matches = 0
+    
+    # Получаем все лица на фото
+    all_faces = PhotoFace.objects.select_related('photo').all()
+    
+    for photo_face in all_faces:
+        if photo_face.face_encoding:
+            try:
+                is_match, confidence = face_service.compare_faces(
+                    profile.face_encoding,
+                    photo_face.face_encoding
+                )
+                if is_match:
+                    matched_count += 1
+                    if photo_face.matched_user != request.user:
+                        photo_face.matched_user = request.user
+                        photo_face.save()
+                        new_matches += 1
+            except Exception:
+                continue
+    
+    if new_matches > 0:
+        messages.success(request, f'Поиск завершён! Найдено {new_matches} новых фото с вами. Всего совпадений: {matched_count}.')
+    elif matched_count > 0:
+        messages.info(request, f'Найдено {matched_count} фото с вами. Новых совпадений нет.')
+    else:
+        messages.info(request, 'К сожалению, фото с вами пока не найдено.')
+    
+    return redirect('clients:dashboard')

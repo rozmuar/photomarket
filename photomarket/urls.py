@@ -27,3 +27,9 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+
+# Кастомные страницы ошибок
+handler400 = 'photomarket.views.handler400'
+handler403 = 'photomarket.views.handler403'
+handler404 = 'photomarket.views.handler404'
+handler500 = 'photomarket.views.handler500'

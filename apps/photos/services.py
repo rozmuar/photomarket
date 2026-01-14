@@ -149,7 +149,7 @@ class PhotoProcessingService:
         photo.watermarked.save(filename, ContentFile(buffer.read()), save=False)
     
     def detect_faces(self, photo):
-        """Распознавание лиц на фото"""
+        """Распознавание лиц на фото и сопоставление с клиентами"""
         try:
             from apps.recognition.services import face_service
             
@@ -160,15 +160,34 @@ class PhotoProcessingService:
             # Получаем данные о лицах
             faces = face_service.get_face_data(photo.original.path)
             
-            # Сохраняем каждое лицо в базу
+            # Загружаем клиентов с обработанными селфи
+            from apps.accounts.models import ClientProfile
             from apps.photos.models import PhotoFace
             
+            clients_with_faces = list(ClientProfile.objects.filter(
+                face_processed=True
+            ).exclude(face_encoding__isnull=True).select_related('user'))
+            
+            # Сохраняем каждое лицо в базу и пробуем сопоставить
             for face in faces:
-                PhotoFace.objects.create(
+                photo_face = PhotoFace.objects.create(
                     photo=photo,
                     face_location=face['location'],
                     face_encoding=face['encoding']
                 )
+                
+                # Пробуем найти совпадение среди клиентов
+                for client in clients_with_faces:
+                    if client.face_encoding:
+                        is_match, confidence = face_service.compare_faces(
+                            client.face_encoding,
+                            face['encoding']
+                        )
+                        if is_match:
+                            photo_face.matched_user = client.user
+                            photo_face.save()
+                            print(f"[MATCH] Найдено совпадение: фото {photo.id} -> пользователь {client.user.username}")
+                            break  # Один пользователь на одно лицо
             
             return len(faces)
         except Exception as e:

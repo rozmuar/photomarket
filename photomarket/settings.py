@@ -15,7 +15,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me-in-production')
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.photomarket.ru']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '85.198.102.230', '.photomarket.ru']
 
 
 # Applications
