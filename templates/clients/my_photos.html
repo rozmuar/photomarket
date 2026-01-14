@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои фотографии - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4"><i class="bi bi-images"></i> Мои фотографии</h1>
+    
+    {% if not profile.face_processed %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        Сначала <a href="{% url 'clients:dashboard' %}">загрузите селфи</a>, чтобы найти свои фотографии.
+    </div>
+    {% else %}
+    
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label">Тип события</label>
+                    {{ filter_form.event_type }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Город</label>
+                    {{ filter_form.city }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Дата от</label>
+                    {{ filter_form.date_from }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Дата до</label>
+                    {{ filter_form.date_to }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Цена</label>
+                    <div class="input-group">
+                        {{ filter_form.price_min }}
+                        {{ filter_form.price_max }}
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if photos %}
+    <p class="text-muted mb-3">Найдено {{ photos.paginator.count }} фото с вашим лицом</p>
+    
+    <div class="row g-4">
+        {% for photo in photos %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100 photo-card">
+                <a href="{% url 'clients:photo_detail' photo.id %}">
+                    <img src="{% if photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}" 
+                         class="card-img-top" style="height: 200px; object-fit: cover;">
+                </a>
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="h5 mb-0">{{ photo.price }} ₽</span>
+                        <a href="{% url 'payments:create_payment' photo.id %}" class="btn btn-sm btn-success">
+                            <i class="bi bi-cart-plus"></i> Купить
+                        </a>
+                    </div>
+                    {% if photo.event %}
+                    <small class="text-muted d-block">
+                        <i class="bi bi-calendar"></i> {{ photo.event.name }}
+                    </small>
+                    <small class="text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ photo.event.city }}
+                    </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Пагинация -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Далее</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-search display-1 text-muted"></i>
+        <h4 class="mt-3">Фотографий пока не найдено</h4>
+        <p class="text-muted">
+            Мы ищем фотографии с вашим лицом среди загруженных фотографами снимков.
+            <br>Как только появятся совпадения — вы увидите их здесь.
+        </p>
+        <a href="{% url 'photos:events' %}" class="btn btn-outline-primary">
+            Посмотреть все события
+        </a>
+    </div>
+    {% endif %}
+    
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}PhotoMarket - Найди себя на фото{% endblock %}
+
+{% block content %}
+<!-- Hero секция -->
+<section class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Найди себя на профессиональных фотографиях
+                </h1>
+                <p class="lead mb-4">
+                    Загрузи селфи — и наш ИИ найдёт все фотографии с твоим лицом 
+                    на мероприятиях, концертах, свадьбах и спортивных событиях.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-search"></i> Найти свои фото
+                    </a>
+                    <a href="{% url 'photos:events' %}" class="btn btn-outline-light btn-lg">
+                        Смотреть события
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-image">
+                    <i class="bi bi-camera display-1"></i>
+                    <i class="bi bi-person-bounding-box display-1 ms-3"></i>
+                    <i class="bi bi-arrow-right display-1 mx-3"></i>
+                    <i class="bi bi-images display-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Как это работает -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Как это работает</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle mb-3 mx-auto" 
+                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
+                            <i class="bi bi-camera-fill"></i>
+                        </div>
+                        <h4>1. Сделай селфи</h4>
+                        <p class="text-muted">
+                            Загрузи своё фото или сделай селфи прямо на сайте. 
+                            Наш ИИ запомнит твоё лицо.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-success text-white rounded-circle mb-3 mx-auto" 
+                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h4>2. Найди фото</h4>
+                        <p class="text-muted">
+                            Система автоматически найдёт все фотографии с твоим лицом 
+                            среди тысяч снимков.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-warning text-white rounded-circle mb-3 mx-auto" 
+                             style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">
+                            <i class="bi bi-download"></i>
+                        </div>
+                        <h4>3. Купи и скачай</h4>
+                        <p class="text-muted">
+                            Понравилось фото? Купи его в хорошем качестве. 
+                            Не понравилось — запроси удаление.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Для фотографов -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Вы фотограф?</h2>
+                <p class="lead">
+                    Зарабатывайте на своих фотографиях! Загружайте снимки с мероприятий, 
+                    и клиенты сами найдут себя и купят фото.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Автоматическое распознавание лиц
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Водяные знаки для защиты фото
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Удобный вывод средств на карту
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Комиссия всего 15%
+                    </li>
+                </ul>
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-camera-reels"></i> Стать фотографом
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow">
+                    <div class="card-body p-4">
+                        <h5 class="card-title">Статистика платформы</h5>
+                        <div class="row text-center mt-4">
+                            <div class="col-4">
+                                <div class="display-6 text-primary">1000+</div>
+                                <small class="text-muted">Фотографов</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-success">50K+</div>
+                                <small class="text-muted">Фотографий</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-warning">10K+</div>
+                                <small class="text-muted">Клиентов</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Типы событий -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Популярные события</h2>
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <a href="{% url 'photos:events' %}?type=sport" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-trophy display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">Спорт</h5>
+                        <p class="text-muted small">Марафоны, соревнования</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'photos:events' %}?type=wedding" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-heart display-4 text-danger mb-3"></i>
+                        <h5 class="card-title">Свадьбы</h5>
+                        <p class="text-muted small">Торжества и банкеты</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'photos:events' %}?type=concert" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-music-note-beamed display-4 text-success mb-3"></i>
+                        <h5 class="card-title">Концерты</h5>
+                        <p class="text-muted small">Фестивали и выступления</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{% url 'photos:events' %}?type=corporate" class="card text-decoration-none h-100 border-0 shadow-sm event-card">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-building display-4 text-info mb-3"></i>
+                        <h5 class="card-title">Корпоративы</h5>
+                        <p class="text-muted small">Бизнес-мероприятия</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Готовы найти свои фотографии?</h2>
+        <p class="lead mb-4">
+            Регистрация бесплатна. Начните поиск прямо сейчас!
+        </p>
+        <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg">
+            <i class="bi bi-person-plus"></i> Создать аккаунт
+        </a>
+    </div>
+</section>
+{% endblock %}

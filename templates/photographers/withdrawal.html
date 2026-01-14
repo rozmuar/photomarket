@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Вывод средств - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'photographers:dashboard' %}">Кабинет</a></li>
+            <li class="breadcrumb-item active">Вывод средств</li>
+        </ol>
+    </nav>
+    
+    <h1 class="mb-4"><i class="bi bi-wallet2"></i> Вывод средств</h1>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Доступно для вывода</h6>
+                    <h1 class="display-4 text-primary">{{ balance }} ₽</h1>
+                </div>
+            </div>
+            
+            {% if balance >= 100 %}
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Сумма вывода (₽)</label>
+                            {{ form.amount }}
+                            <small class="text-muted">Минимальная сумма: 100 ₽</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Номер карты</label>
+                            {{ form.bank_card }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-send"></i> Отправить заявку
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                Минимальная сумма для вывода: 100 ₽
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

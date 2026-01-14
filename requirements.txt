@@ -1,0 +1,28 @@
+# Django Framework
+Django>=4.2,<5.0
+django-crispy-forms>=2.1
+crispy-bootstrap5>=2023.1
+
+# Database
+psycopg2-binary>=2.9  # PostgreSQL
+Pillow>=10.0  # Работа с изображениями
+
+# Face Recognition
+face_recognition>=1.3.0
+numpy>=1.24
+opencv-python>=4.8
+
+# Payments (YooKassa)
+yookassa>=3.0
+
+# Utils
+python-dotenv>=1.0
+celery>=5.3  # Асинхронные задачи
+redis>=5.0   # Брокер для Celery
+
+# Production
+gunicorn>=21.0
+whitenoise>=6.6  # Статика
+
+# Development
+django-debug-toolbar>=4.2

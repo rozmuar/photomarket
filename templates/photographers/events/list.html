@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои события - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-calendar-event"></i> Мои события</h1>
+        <a href="{% url 'photographers:event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Создать событие
+        </a>
+    </div>
+    
+    {% if events %}
+    <div class="row g-4">
+        {% for event in events %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="badge bg-{{ event.event_type }}">
+                            {{ event.get_event_type_display }}
+                        </span>
+                        <small class="text-muted">{{ event.date|date:"d.m.Y" }}</small>
+                    </div>
+                    <h5 class="card-title mt-2">{{ event.name }}</h5>
+                    <p class="text-muted small">
+                        <i class="bi bi-geo-alt"></i> {{ event.city }}{% if event.location %}, {{ event.location }}{% endif %}
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-images"></i> {{ event.photos_count }} фото
+                        <span class="mx-2">|</span>
+                        <i class="bi bi-currency-ruble"></i> {{ event.default_price }} ₽
+                    </p>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'photographers:event_detail' event.pk %}" class="btn btn-sm btn-outline-primary">
+                        Подробнее
+                    </a>
+                    <a href="{% url 'photographers:event_edit' event.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Пагинация -->
+    {% if page_obj.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Далее</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-calendar-x display-1 text-muted"></i>
+        <h4 class="mt-3">У вас пока нет событий</h4>
+        <p class="text-muted">Создайте первое событие, чтобы организовать фотографии</p>
+        <a href="{% url 'photographers:event_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Создать событие
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

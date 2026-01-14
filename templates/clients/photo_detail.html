@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Фотография - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'clients:dashboard' %}">Мой кабинет</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'clients:my_photos' %}">Мои фото</a></li>
+            <li class="breadcrumb-item active">Фото</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Фото -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="position-relative">
+                    <img src="{% if is_purchased %}{{ photo.original.url }}{% elif photo.watermarked %}{{ photo.watermarked.url }}{% else %}{{ photo.original.url }}{% endif %}" 
+                         class="card-img-top" style="max-height: 600px; object-fit: contain; background: #f8f9fa;">
+                    
+                    {% if not is_purchased %}
+                    <div class="position-absolute top-50 start-50 translate-middle text-center" 
+                         style="pointer-events: none;">
+                        <span class="display-4 text-white" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+                            ПРЕВЬЮ
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Информация и действия -->
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4 class="mb-3">{{ photo.price }} ₽</h4>
+                    
+                    {% if is_purchased %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle"></i> Вы уже купили это фото
+                    </div>
+                    <a href="#" class="btn btn-success btn-lg w-100 mb-2">
+                        <i class="bi bi-download"></i> Скачать оригинал
+                    </a>
+                    {% else %}
+                    <a href="{% url 'payments:create_payment' photo.id %}" class="btn btn-primary btn-lg w-100 mb-3">
+                        <i class="bi bi-cart-plus"></i> Купить фото
+                    </a>
+                    <p class="text-muted small">
+                        После покупки вы получите фото в полном разрешении без водяного знака.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Информация о событии -->
+            {% if photo.event %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-calendar-event"></i> Событие</h6>
+                </div>
+                <div class="card-body">
+                    <h6>{{ photo.event.name }}</h6>
+                    <p class="text-muted mb-1">
+                        <i class="bi bi-calendar"></i> {{ photo.event.date|date:"d.m.Y" }}
+                    </p>
+                    {% if photo.event.city %}
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-geo-alt"></i> {{ photo.event.city }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Фотограф -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-camera"></i> Фотограф</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong>{{ photo.photographer.user.get_full_name|default:photo.photographer.user.username }}</strong>
+                    </p>
+                    {% if photo.photographer.studio_name %}
+                    <p class="text-muted mb-0">{{ photo.photographer.studio_name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Запрос на удаление -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-shield-exclamation"></i> Это вы на фото?</h6>
+                </div>
+                <div class="card-body">
+                    {% if deletion_request %}
+                        <div class="alert alert-info mb-0">
+                            {% if deletion_request.status == 'pending' %}
+                            <i class="bi bi-hourglass-split"></i> Ваш запрос на рассмотрении
+                            {% elif deletion_request.status == 'approved' %}
+                            <i class="bi bi-check-circle"></i> Фото будет удалено
+                            {% else %}
+                            <i class="bi bi-x-circle"></i> Запрос отклонён: {{ deletion_request.response }}
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small">
+                            Если вы не хотите, чтобы эта фотография была опубликована, 
+                            вы можете запросить её удаление.
+                        </p>
+                        <button class="btn btn-outline-danger w-100" data-bs-toggle="modal" data-bs-target="#deletionModal">
+                            <i class="bi bi-trash"></i> Запросить удаление
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно запроса на удаление -->
+<div class="modal fade" id="deletionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Запрос на удаление фотографии</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'clients:request_deletion' photo.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Укажите причину, по которой вы хотите удалить эту фотографию:</p>
+                    {{ deletion_form.reason }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-send"></i> Отправить запрос
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

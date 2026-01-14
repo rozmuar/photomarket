@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование профиля - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">Редактирование профиля</h2>
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Основная информация -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Основная информация</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Имя</label>
+                                {{ user_form.first_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Фамилия</label>
+                                {{ user_form.last_name }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ user_form.email }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Телефон</label>
+                            {{ user_form.phone }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Аватар</label>
+                            {{ user_form.avatar }}
+                        </div>
+                    </div>
+                </div>
+                
+                {% if photographer_form %}
+                <!-- Профиль фотографа -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-camera"></i> Настройки фотографа</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Название студии/бренда</label>
+                            {{ photographer_form.studio_name }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">О себе</label>
+                            {{ photographer_form.description }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Instagram</label>
+                                {{ photographer_form.instagram }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">VK</label>
+                                {{ photographer_form.vk }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Telegram</label>
+                                {{ photographer_form.telegram }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Цена за фото по умолчанию (₽)</label>
+                                {{ photographer_form.default_photo_price }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Номер карты для вывода</label>
+                                {{ photographer_form.bank_card }}
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            {{ photographer_form.auto_watermark }}
+                            <label class="form-check-label">
+                                Автоматически добавлять водяной знак
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if client_form %}
+                <!-- Профиль клиента -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-person-circle"></i> Настройки клиента</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Селфи для поиска фотографий</label>
+                            {{ client_form.selfie }}
+                            <small class="text-muted">
+                                Загрузите чёткое фото своего лица для поиска фотографий с вашим изображением.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i> Сохранить изменения
+                    </button>
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                        Отмена
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

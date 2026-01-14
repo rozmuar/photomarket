@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" class="rounded-circle mb-3" 
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-secondary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                         style="width: 150px; height: 150px;">
+                        <i class="bi bi-person display-1 text-white"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <h4>{{ user.get_full_name|default:user.username }}</h4>
+                    <p class="text-muted">{{ user.get_user_type_display }}</p>
+                    
+                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Информация о профиле</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">Email:</th>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                        <tr>
+                            <th>Телефон:</th>
+                            <td>{{ user.phone|default:"Не указан" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Дата регистрации:</th>
+                            <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            {% if photographer_profile %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-camera"></i> Профиль фотографа</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">Студия:</th>
+                            <td>{{ photographer_profile.studio_name|default:"Не указана" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Баланс:</th>
+                            <td><strong>{{ photographer_profile.balance }} ₽</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Всего заработано:</th>
+                            <td>{{ photographer_profile.total_earned }} ₽</td>
+                        </tr>
+                        <tr>
+                            <th>Верификация:</th>
+                            <td>
+                                {% if photographer_profile.is_verified %}
+                                <span class="badge bg-success">Подтверждён</span>
+                                {% else %}
+                                <span class="badge bg-warning">На проверке</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if client_profile %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> Профиль клиента</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="30%">Селфи:</th>
+                            <td>
+                                {% if client_profile.face_processed %}
+                                <span class="badge bg-success">Обработано</span>
+                                {% elif client_profile.selfie %}
+                                <span class="badge bg-warning">Обрабатывается...</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Не загружено</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Покупок:</th>
+                            <td>{{ client_profile.total_purchases }}</td>
+                        </tr>
+                        <tr>
+                            <th>Потрачено:</th>
+                            <td>{{ client_profile.total_spent }} ₽</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Редактирование события{% else %}Создание события{% endif %} - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'photographers:dashboard' %}">Кабинет</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'photographers:events' %}">События</a></li>
+            <li class="breadcrumb-item active">{% if object %}Редактирование{% else %}Создание{% endif %}</li>
+        </ol>
+    </nav>
+    
+    <h1 class="mb-4">
+        {% if object %}
+        <i class="bi bi-pencil"></i> Редактирование события
+        {% else %}
+        <i class="bi bi-calendar-plus"></i> Создание события
+        {% endif %}
+    </h1>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Название события *</label>
+                            {{ form.name }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Тип события</label>
+                                {{ form.event_type }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Дата события *</label>
+                                {{ form.date }}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Город</label>
+                                {{ form.city }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Место проведения</label>
+                                {{ form.location }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Описание</label>
+                            {{ form.description }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Цена за фото по умолчанию (₽)</label>
+                                {{ form.default_price }}
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
+                                <div class="form-check">
+                                    {{ form.is_public }}
+                                    <label class="form-check-label">
+                                        Публичное событие (видно в каталоге)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> 
+                                {% if object %}Сохранить{% else %}Создать{% endif %}
+                            </button>
+                            <a href="{% url 'photographers:events' %}" class="btn btn-outline-secondary">
+                                Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

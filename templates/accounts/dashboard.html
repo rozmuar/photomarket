@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Личный кабинет</h1>
+    
+    <div class="row g-4">
+        {% if user.is_photographer %}
+        <div class="col-md-6">
+            <div class="card h-100 border-primary">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="bi bi-camera-reels text-primary"></i> Кабинет фотографа
+                    </h4>
+                    <p class="card-text">Управляйте событиями, загружайте фото, отслеживайте продажи.</p>
+                    {% if photographer_profile %}
+                    <p class="text-muted">
+                        Баланс: <strong>{{ photographer_profile.balance }} ₽</strong>
+                    </p>
+                    {% endif %}
+                    <a href="{% url 'photographers:dashboard' %}" class="btn btn-primary">
+                        Перейти <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if user.is_client %}
+        <div class="col-md-6">
+            <div class="card h-100 border-success">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="bi bi-images text-success"></i> Мои фотографии
+                    </h4>
+                    <p class="card-text">Ищите фотографии с вашим лицом, покупайте понравившиеся.</p>
+                    {% if client_profile %}
+                    <p class="text-muted">
+                        {% if client_profile.face_processed %}
+                        <i class="bi bi-check-circle text-success"></i> Селфи загружено
+                        {% else %}
+                        <i class="bi bi-exclamation-circle text-warning"></i> Загрузите селфи
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                    <a href="{% url 'clients:dashboard' %}" class="btn btn-success">
+                        Перейти <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Регистрация - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">
+                        <i class="bi bi-person-plus"></i> Регистрация
+                    </h2>
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Тип аккаунта -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Выберите тип аккаунта:</label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="user_type" 
+                                           id="type_client" value="client" 
+                                           {% if form.user_type.value == 'client' or not form.user_type.value %}checked{% endif %}>
+                                    <label class="btn btn-outline-primary w-100 py-3" for="type_client">
+                                        <i class="bi bi-search d-block display-6 mb-2"></i>
+                                        Ищу свои фото
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="user_type" 
+                                           id="type_photographer" value="photographer"
+                                           {% if form.user_type.value == 'photographer' %}checked{% endif %}>
+                                    <label class="btn btn-outline-primary w-100 py-3" for="type_photographer">
+                                        <i class="bi bi-camera d-block display-6 mb-2"></i>
+                                        Я фотограф
+                                    </label>
+                                </div>
+                            </div>
+                            {% if form.user_type.errors %}
+                            <div class="text-danger small mt-2">{{ form.user_type.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Имя</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Фамилия</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Логин</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Пароль</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                            <div class="text-danger small">{{ form.password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Подтвердите пароль</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                            <div class="text-danger small">{{ form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Согласия -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" 
+                                       name="consent_personal_data" id="consent_pd" required>
+                                <label class="form-check-label" for="consent_pd">
+                                    Я согласен на <a href="#" data-bs-toggle="modal" data-bs-target="#pdModal">
+                                    обработку персональных данных</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" 
+                                       name="consent_biometric_data" id="consent_bio" required>
+                                <label class="form-check-label" for="consent_bio">
+                                    Я согласен на <a href="#" data-bs-toggle="modal" data-bs-target="#bioModal">
+                                    обработку биометрических данных</a> (распознавание лица)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="bi bi-check-lg"></i> Зарегистрироваться
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Уже есть аккаунт? 
+                            <a href="{% url 'accounts:login' %}">Войти</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Персональные данные -->
+<div class="modal fade" id="pdModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Согласие на обработку персональных данных</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>В соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных», 
+                я даю согласие на обработку моих персональных данных...</p>
+                <ul>
+                    <li>ФИО</li>
+                    <li>Адрес электронной почты</li>
+                    <li>Номер телефона</li>
+                    <li>Платёжные данные</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Биометрия -->
+<div class="modal fade" id="bioModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Согласие на обработку биометрических данных</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Я даю согласие на обработку моих биометрических персональных данных (изображение лица) 
+                в целях идентификации на фотографиях...</p>
+                <p><strong>Ваши права:</strong></p>
+                <ul>
+                    <li>Право на отзыв согласия в любой момент</li>
+                    <li>Право на удаление всех данных</li>
+                    <li>Право запросить информацию о хранящихся данных</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
