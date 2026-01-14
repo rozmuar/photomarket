@@ -207,11 +207,20 @@ class PhotoDetailView(LoginRequiredMixin, DetailView):
             # Форма запроса на удаление
             context['deletion_form'] = DeletionRequestForm()
             
-            # Есть ли уже запрос на удаление
+            # Есть ли активный (pending) запрос на удаление
             context['deletion_request'] = DeletionRequest.objects.filter(
                 photo=self.object,
-                requester=self.request.user
+                requester=self.request.user,
+                status='pending'
             ).first()
+            
+            # Последний отклонённый запрос (для показа причины отказа)
+            if not context['deletion_request']:
+                context['rejected_request'] = DeletionRequest.objects.filter(
+                    photo=self.object,
+                    requester=self.request.user,
+                    status='rejected'
+                ).order_by('-processed_at').first()
         
         return context
 
