@@ -8,8 +8,17 @@ from .models import Photo, Event
 
 def photo_gallery(request):
     """Публичная галерея фото"""
+    from .models import DeletionRequest
+    
+    # Исключаем фото с активными запросами на удаление
+    pending_deletion_photo_ids = DeletionRequest.objects.filter(
+        status='pending'
+    ).values_list('photo_id', flat=True)
+    
     photos = Photo.objects.filter(
         status='active'
+    ).exclude(
+        id__in=pending_deletion_photo_ids
     ).select_related('photographer__user', 'event').order_by('-created_at')
     
     # Фильтр по событию (опционально)
@@ -50,8 +59,20 @@ def events_list(request):
 
 def event_detail(request, pk):
     """Детали события"""
+    from .models import DeletionRequest
+    
     event = get_object_or_404(Event, pk=pk, is_public=True)
-    photos = Photo.objects.filter(event=event, status='active').order_by('-created_at')
+    
+    # Исключаем фото с активными запросами на удаление
+    pending_deletion_photo_ids = DeletionRequest.objects.filter(
+        status='pending'
+    ).values_list('photo_id', flat=True)
+    
+    photos = Photo.objects.filter(
+        event=event, status='active'
+    ).exclude(
+        id__in=pending_deletion_photo_ids
+    ).order_by('-created_at')
     
     paginator = Paginator(photos, 24)
     page = request.GET.get('page')

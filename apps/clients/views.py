@@ -34,9 +34,18 @@ class DashboardView(LoginRequiredMixin, ClientRequiredMixin, TemplateView):
         
         # Найденные фото (где есть совпадение с лицом пользователя)
         if profile.face_processed:
+            # Исключаем фото с активными запросами на удаление
+            pending_deletion_photo_ids = DeletionRequest.objects.filter(
+                status='pending'
+            ).values_list('photo_id', flat=True)
+            
             matched_faces = PhotoFace.objects.filter(
-                matched_user=self.request.user
+                matched_user=self.request.user,
+                photo__status='active'
+            ).exclude(
+                photo_id__in=pending_deletion_photo_ids
             ).select_related('photo')
+            
             context['matched_photos_count'] = matched_faces.count()
             context['recent_matches'] = [f.photo for f in matched_faces[:6]]
         
@@ -135,9 +144,16 @@ class MyPhotosView(LoginRequiredMixin, ClientRequiredMixin, ListView):
             matched_user=self.request.user
         ).values_list('photo_id', flat=True)
         
+        # Исключаем фото с активными запросами на удаление
+        pending_deletion_photo_ids = DeletionRequest.objects.filter(
+            status='pending'
+        ).values_list('photo_id', flat=True)
+        
         queryset = Photo.objects.filter(
             id__in=matched_photo_ids,
             status='active'
+        ).exclude(
+            id__in=pending_deletion_photo_ids
         ).select_related('photographer__user', 'event')
         
         # Применяем фильтры
@@ -208,10 +224,15 @@ def request_deletion(request, photo_id):
     
     photo = get_object_or_404(Photo, id=photo_id, status='active')
     
-    # Проверяем, есть ли уже запрос
-    existing = DeletionRequest.objects.filter(photo=photo, requester=request.user).first()
+    # Проверяем, есть ли уже активный запрос (pending)
+    existing = DeletionRequest.objects.filter(
+        photo=photo, 
+        requester=request.user,
+        status='pending'
+    ).first()
+    
     if existing:
-        messages.warning(request, 'Вы уже отправляли запрос на удаление этого фото.')
+        messages.warning(request, 'Вы уже отправляли запрос на удаление этого фото. Ожидайте ответа.')
         return redirect('clients:photo_detail', pk=photo_id)
     
     if request.method == 'POST':
