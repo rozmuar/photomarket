@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Запрос на удаление - PhotoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'photographers:dashboard' %}">Кабинет</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'photographers:deletion_requests' %}">Запросы на удаление</a></li>
+            <li class="breadcrumb-item active">Запрос #{{ request.id }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-image"></i> Фотография
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    {% if request.photo.watermarked %}
+                        <img src="{{ request.photo.watermarked.url }}" class="img-fluid rounded" style="max-height: 400px;">
+                    {% elif request.photo.original %}
+                        <img src="{{ request.photo.original.url }}" class="img-fluid rounded" style="max-height: 400px;">
+                    {% else %}
+                        <div class="bg-light p-5 rounded">
+                            <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                            <p class="text-muted mt-2">Фото недоступно</p>
+                        </div>
+                    {% endif %}
+                    
+                    {% if request.photo.event %}
+                    <p class="mt-3 text-muted mb-0">
+                        <i class="bi bi-calendar-event"></i> {{ request.photo.event.title }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-trash"></i> Запрос на удаление
+                        {% if request.status == 'pending' %}
+                            <span class="badge bg-warning">Ожидает</span>
+                        {% elif request.status == 'approved' %}
+                            <span class="badge bg-success">Одобрен</span>
+                        {% else %}
+                            <span class="badge bg-danger">Отклонён</span>
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>От кого:</strong><br>
+                        <i class="bi bi-person"></i> {{ request.requester.email }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Дата запроса:</strong><br>
+                        <i class="bi bi-clock"></i> {{ request.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Причина:</strong><br>
+                        <div class="bg-light p-3 rounded">
+                            {{ request.reason|default:"Причина не указана"|linebreaks }}
+                        </div>
+                    </div>
+                    
+                    {% if request.status == 'pending' %}
+                    <hr>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="response" class="form-label">Ваш ответ (необязательно):</label>
+                            <textarea name="response" id="response" class="form-control" rows="3" 
+                                      placeholder="Комментарий для клиента..."></textarea>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success flex-fill">
+                                <i class="bi bi-check-lg"></i> Одобрить и удалить
+                            </button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger flex-fill">
+                                <i class="bi bi-x-lg"></i> Отклонить
+                            </button>
+                        </div>
+                    </form>
+                    {% else %}
+                        {% if request.response %}
+                        <div class="mb-3">
+                            <strong>Ваш ответ:</strong><br>
+                            <div class="bg-light p-3 rounded">
+                                {{ request.response|linebreaks }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <strong>Обработано:</strong><br>
+                            <i class="bi bi-clock"></i> {{ request.processed_at|date:"d.m.Y H:i" }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <a href="{% url 'photographers:deletion_requests' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
