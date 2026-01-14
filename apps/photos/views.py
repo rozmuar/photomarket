@@ -9,9 +9,12 @@ from .models import Photo, Event
 def photo_gallery(request):
     """Публичная галерея фото"""
     photos = Photo.objects.filter(
-        status='active',
-        event__is_public=True
+        status='active'
     ).select_related('photographer__user', 'event').order_by('-created_at')
+    
+    # Фильтр по событию (опционально)
+    if request.GET.get('event'):
+        photos = photos.filter(event__is_public=True)
     
     paginator = Paginator(photos, 24)
     page = request.GET.get('page')

@@ -136,16 +136,23 @@ def photo_upload(request):
             event = form.cleaned_data.get('event')
             price = form.cleaned_data['price']
             
+            # Импортируем сервис обработки
+            from apps.photos.services import photo_service
+            
+            processed = 0
             for f in files:
-                Photo.objects.create(
+                photo = Photo.objects.create(
                     photographer=profile,
                     event=event,
                     original=f,
                     price=price,
-                    status='active'  # В режиме разработки сразу активируем
+                    status='processing'
                 )
+                # Обрабатываем фото (превью, водяной знак, лица)
+                if photo_service.process_photo(photo):
+                    processed += 1
             
-            messages.success(request, f'Загружено {len(files)} фото!')
+            messages.success(request, f'Загружено и обработано {processed} из {len(files)} фото!')
             return redirect('photographers:photos')
     else:
         form = BulkPhotoUploadForm(profile)

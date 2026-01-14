@@ -149,7 +149,8 @@ FACE_ENCODING_MODEL = 'large'     # 'small' или 'large'
 
 # Photo Settings
 MAX_PHOTO_SIZE_MB = 50
-WATERMARK_OPACITY = 0.5
+WATERMARK_OPACITY = 0.3
+WATERMARK_TEXT = 'PhotoMarket'
 THUMBNAIL_SIZE = (400, 400)
 
 # Commission Settings (Комиссия сервиса)
