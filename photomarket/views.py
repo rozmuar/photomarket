@@ -56,3 +56,13 @@ def handler404(request, exception=None):
 def handler500(request):
     """Обработчик ошибки 500 - Внутренняя ошибка сервера"""
     return render(request, '500.html', status=500)
+
+
+def license_view(request):
+    """Лицензионное соглашение"""
+    return render(request, 'pages/license.html')
+
+
+def privacy_view(request):
+    """Политика конфиденциальности"""
+    return render(request, 'pages/privacy.html')

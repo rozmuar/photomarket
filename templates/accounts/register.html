@@ -142,10 +142,22 @@
                     </div>
                     
                     <div class="mb-4">
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="consent_personal" name="consent_personal_data" required>
+                            <label class="form-check-label text-muted" for="consent_personal">
+                                Я согласен на <a href="{% url 'privacy' %}" class="text-accent" target="_blank">обработку персональных данных</a>
+                            </label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="checkbox" class="form-check-input" id="consent_biometric" name="consent_biometric_data" required>
+                            <label class="form-check-label text-muted" for="consent_biometric">
+                                Я согласен на обработку биометрических данных (распознавание лица)
+                            </label>
+                        </div>
                         <div class="form-check">
                             <input type="checkbox" class="form-check-input" id="agree" name="agree" required>
                             <label class="form-check-label text-muted" for="agree">
-                                Я согласен с <a href="#" class="text-accent">условиями использования</a>
+                                Я принимаю <a href="{% url 'license' %}" class="text-accent" target="_blank">лицензионное соглашение</a>
                             </label>
                         </div>
                     </div>

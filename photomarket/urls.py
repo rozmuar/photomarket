@@ -14,6 +14,10 @@ urlpatterns = [
     # Главная страница
     path('', views.home, name='home'),
     
+    # Статические страницы
+    path('license/', views.license_view, name='license'),
+    path('privacy/', views.privacy_view, name='privacy'),
+    
     # Приложения
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
     path('photographer/', include('apps.photographers.urls', namespace='photographers')),

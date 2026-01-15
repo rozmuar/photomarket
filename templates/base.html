@@ -154,13 +154,19 @@
                     <h6 class="footer-title">Для фотографов</h6>
                     <ul class="footer-links">
                         <li><a href="{% url 'accounts:register' %}">Стать фотографом</a></li>
-                        <li><a href="#">Условия сотрудничества</a></li>
-                        <li><a href="#">Тарифы</a></li>
+                        <li><a href="{% url 'license' %}">Лицензионное соглашение</a></li>
+                        <li><a href="{% url 'privacy' %}">Политика конфиденциальности</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="mb-0">&copy; 2026 PhotoMarket. Все права защищены.</p>
+                <p class="mb-0">
+                    &copy; 2026 PhotoMarket. Все права защищены.
+                    <span class="mx-2">|</span>
+                    <a href="{% url 'license' %}" class="text-muted">Лицензия</a>
+                    <span class="mx-2">|</span>
+                    <a href="{% url 'privacy' %}" class="text-muted">Конфиденциальность</a>
+                </p>
             </div>
         </div>
     </footer>
