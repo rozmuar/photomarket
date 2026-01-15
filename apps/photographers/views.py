@@ -13,7 +13,7 @@ from django.utils import timezone
 from apps.accounts.models import PhotographerProfile
 from apps.photos.models import Event, Photo, DeletionRequest
 from apps.payments.models import Purchase, Withdrawal
-from .forms import EventForm, PhotoUploadForm, BulkPhotoUploadForm, WithdrawalForm
+from .forms import EventForm, PhotoUploadForm, BulkPhotoUploadForm, WithdrawalForm, PhotoEditForm
 
 
 class PhotographerRequiredMixin(UserPassesTestMixin):
@@ -163,6 +163,61 @@ def photo_upload(request):
         form = BulkPhotoUploadForm(profile)
     
     return render(request, 'photographers/photos/upload.html', {'form': form})
+
+
+@login_required
+def photo_edit(request, pk):
+    """Редактирование фотографии"""
+    if not request.user.is_photographer:
+        return redirect('accounts:dashboard')
+    
+    profile = request.user.photographer_profile
+    photo = get_object_or_404(Photo, pk=pk, photographer=profile)
+    
+    if request.method == 'POST':
+        form = PhotoEditForm(profile, request.POST, instance=photo)
+        if form.is_valid():
+            old_event = photo.event
+            photo = form.save()
+            
+            # Обновляем счётчики у событий
+            if old_event and old_event != photo.event:
+                old_event.photos_count = Photo.objects.filter(event=old_event, status='active').count()
+                old_event.save()
+            if photo.event:
+                photo.event.photos_count = Photo.objects.filter(event=photo.event, status='active').count()
+                photo.event.save()
+            
+            messages.success(request, 'Фото успешно обновлено!')
+            return redirect('photographers:photos')
+    else:
+        form = PhotoEditForm(profile, instance=photo)
+    
+    return render(request, 'photographers/photos/edit.html', {'form': form, 'photo': photo})
+
+
+@login_required
+def photo_delete(request, pk):
+    """Удаление фотографии"""
+    if not request.user.is_photographer:
+        return redirect('accounts:dashboard')
+    
+    profile = request.user.photographer_profile
+    photo = get_object_or_404(Photo, pk=pk, photographer=profile)
+    
+    if request.method == 'POST':
+        event = photo.event
+        photo.delete()
+        
+        # Обновляем счётчик у события
+        if event:
+            event.photos_count = Photo.objects.filter(event=event, status='active').count()
+            event.save()
+        
+        messages.success(request, 'Фото удалено!')
+        return redirect('photographers:photos')
+    
+    return render(request, 'photographers/photos/delete_confirm.html', {'photo': photo})
 
 
 class SalesListView(LoginRequiredMixin, PhotographerRequiredMixin, ListView):

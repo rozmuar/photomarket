@@ -95,6 +95,24 @@ class BulkPhotoUploadForm(forms.Form):
         self.fields['event'].queryset = Event.objects.filter(photographer=photographer)
 
 
+class PhotoEditForm(forms.ModelForm):
+    """Форма редактирования фото"""
+    
+    class Meta:
+        model = Photo
+        fields = ['event', 'title', 'price']
+        widgets = {
+            'event': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название (необязательно)'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': '50'}),
+        }
+    
+    def __init__(self, photographer, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['event'].queryset = Event.objects.filter(photographer=photographer)
+        self.fields['event'].required = False
+
+
 class WithdrawalForm(forms.Form):
     """Форма вывода средств"""
     
