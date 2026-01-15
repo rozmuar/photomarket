@@ -11,8 +11,12 @@
         {% for purchase in purchases %}
         <div class="col-md-6 col-lg-4">
             <div class="card h-100">
-                <img src="{% if purchase.photo.original %}{{ purchase.photo.original.url }}{% endif %}" 
-                     class="card-img-top" style="height: 200px; object-fit: cover;">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#photoModal{{ forloop.counter }}">
+                    <img src="{% if purchase.photo.thumbnail %}{{ purchase.photo.thumbnail.url }}{% elif purchase.photo.watermarked %}{{ purchase.photo.watermarked.url }}{% elif purchase.photo.original %}{{ purchase.photo.original.url }}{% endif %}" 
+                         class="card-img-top" style="height: 200px; object-fit: cover;" 
+                         alt="Купленное фото"
+                         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22><rect fill=%22%23333%22 width=%22100%%22 height=%22100%%22/><text fill=%22%23888%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>Фото недоступно</text></svg>'">
+                </a>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="badge bg-success">{{ purchase.amount }} ₽</span>
@@ -23,11 +27,42 @@
                         <i class="bi bi-calendar"></i> {{ purchase.photo.event.name }}
                     </p>
                     {% endif %}
-                    <a href="{% url 'payments:download' purchase.id purchase.download_token %}" 
-                       class="btn btn-primary btn-sm w-100">
-                        <i class="bi bi-download"></i> Скачать 
-                        <small>({{ purchase.download_count }}/{{ purchase.max_downloads }})</small>
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'payments:download' purchase.id purchase.download_token %}" 
+                           class="btn btn-primary btn-sm flex-grow-1">
+                            <i class="bi bi-download"></i> Скачать 
+                            <small>({{ purchase.download_count }}/{{ purchase.max_downloads }})</small>
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#photoModal{{ forloop.counter }}" title="Просмотр">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно для просмотра фото в полном качестве -->
+        <div class="modal fade" id="photoModal{{ forloop.counter }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title text-white">
+                            {% if purchase.photo.event %}{{ purchase.photo.event.name }}{% else %}Купленное фото{% endif %}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body text-center p-0">
+                        <img src="{% if purchase.photo.original %}{{ purchase.photo.original.url }}{% endif %}" 
+                             class="img-fluid" style="max-height: 80vh; width: auto;"
+                             alt="Фото в полном качестве"
+                             onerror="this.parentElement.innerHTML='<div class=\'text-muted p-5\'>Фото недоступно</div>'">
+                    </div>
+                    <div class="modal-footer border-0 justify-content-center">
+                        <a href="{% url 'payments:download' purchase.id purchase.download_token %}" 
+                           class="btn btn-primary">
+                            <i class="bi bi-download"></i> Скачать оригинал
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
