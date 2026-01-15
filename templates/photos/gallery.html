@@ -22,7 +22,7 @@
                              alt="{{ photo.title }}">
                         {% if photo.event %}
                         <span class="photo-card-badge">
-                            <i class="bi bi-calendar-event"></i> {{ photo.event.title|truncatechars:20 }}
+                            <i class="bi bi-calendar-event"></i> {{ photo.event.name|truncatechars:20 }}
                         </span>
                         {% endif %}
                     </div>

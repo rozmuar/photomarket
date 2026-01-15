@@ -152,6 +152,11 @@ def photo_upload(request):
                 if photo_service.process_photo(photo):
                     processed += 1
             
+            # Обновляем счётчик фото у события
+            if event:
+                event.photos_count = Photo.objects.filter(event=event, status='active').count()
+                event.save()
+            
             messages.success(request, f'Загружено и обработано {processed} из {len(files)} фото!')
             return redirect('photographers:photos')
     else:
