@@ -64,8 +64,17 @@
                                 <i class="bi bi-person-circle"></i> {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                                {% if user.is_photographer %}
+                                <li><a class="dropdown-item" href="{% url 'photographers:dashboard' %}">
+                                    <i class="bi bi-speedometer2"></i> Личный кабинет
+                                </a></li>
+                                {% elif user.is_client %}
+                                <li><a class="dropdown-item" href="{% url 'clients:dashboard' %}">
+                                    <i class="bi bi-speedometer2"></i> Личный кабинет
+                                </a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                    <i class="bi bi-person-gear"></i> Профиль
+                                    <i class="bi bi-person-gear"></i> Настройки профиля
                                 </a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
