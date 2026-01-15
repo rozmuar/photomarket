@@ -45,13 +45,17 @@
                     <a href="#" class="btn btn-success btn-lg w-100 mb-2">
                         <i class="bi bi-download"></i> Скачать оригинал
                     </a>
-                    {% else %}
+                    {% elif is_my_photo %}
                     <a href="{% url 'payments:create_payment' photo.id %}" class="btn btn-primary btn-lg w-100 mb-3">
                         <i class="bi bi-cart-plus"></i> Купить фото
                     </a>
                     <p class="text-muted small">
                         После покупки вы получите фото в полном разрешении без водяного знака.
                     </p>
+                    {% else %}
+                    <div class="alert alert-secondary">
+                        <i class="bi bi-info-circle"></i> Покупка доступна только для фотографий, на которых система обнаружила вас.
+                    </div>
                     {% endif %}
                 </div>
             </div>
