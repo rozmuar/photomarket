@@ -15,8 +15,8 @@ urlpatterns = [
     # Фотографии
     path('photos/', views.PhotoListView.as_view(), name='photos'),
     path('photos/upload/', views.photo_upload, name='photo_upload'),
-    path('photos/<int:pk>/edit/', views.photo_edit, name='photo_edit'),
-    path('photos/<int:pk>/delete/', views.photo_delete, name='photo_delete'),
+    path('photos/<uuid:pk>/edit/', views.photo_edit, name='photo_edit'),
+    path('photos/<uuid:pk>/delete/', views.photo_delete, name='photo_delete'),
     
     # Продажи
     path('sales/', views.SalesListView.as_view(), name='sales'),
