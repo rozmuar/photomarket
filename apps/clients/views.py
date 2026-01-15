@@ -204,6 +204,12 @@ class PhotoDetailView(LoginRequiredMixin, DetailView):
                 status='paid'
             ).exists()
             
+            # Проверяем, найдено ли лицо пользователя на этом фото
+            context['is_my_photo'] = PhotoFace.objects.filter(
+                photo=self.object,
+                matched_user=self.request.user
+            ).exists()
+            
             # Форма запроса на удаление
             context['deletion_form'] = DeletionRequestForm()
             
